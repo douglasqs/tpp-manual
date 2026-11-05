@@ -7,6 +7,7 @@
   <meta name="description" content="Manual em português do Portal de Parceiros de Tecnologia Hikvision: cadastro, MLA, ISAPI, treinamentos e suporte.">
   <title>Manual do Portal TPP | Hikvision</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="companies-data.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body>
@@ -26,6 +27,7 @@
           <a href="#treinamento"><span class="nav-icon" aria-hidden="true">04</span><span>4. Treinamentos</span><span class="nav-arrow" aria-hidden="true">↗</span></a>
           <a href="#suporte"><span class="nav-icon" aria-hidden="true">05</span><span>5. Abrir suporte</span><span class="nav-arrow" aria-hidden="true">↗</span></a>
           <a href="#postman"><span class="nav-icon" aria-hidden="true">{ }</span><span>Coleções Postman</span><span class="nav-arrow" aria-hidden="true">↗</span></a>
+          <a href="#empresas"><span class="nav-icon" aria-hidden="true">06</span><span>Empresas parceiras</span><span class="nav-arrow" aria-hidden="true">↗</span></a>
         </nav>
         <div class="sidebar-progress" hidden><div><span>Progresso de leitura</span><span class="progress-value">0%</span></div><div class="progress-track" aria-hidden="true"><span></span></div></div>
       </div>
@@ -52,6 +54,15 @@
 <figure><img src="assets/suporte-menu-2026.webp" width="869" height="268" loading="lazy" decoding="async" alt="Menu Support com Help and Contact e Online Case destacados"><figcaption>Acesse Online Case pelo menu Help &amp; Contact.</figcaption></figure><figure><img src="assets/suporte-new-case-2026.webp" width="840" height="307" loading="lazy" decoding="async" alt="Página Online Case com botão vermelho New Case destacado"><figcaption>Na página de chamados, clique em New Case.</figcaption></figure><div class="callout">Antes de anexar logs ou capturas, revise senhas, tokens e dados pessoais presentes nos arquivos. A página de chamados informa resposta em até <strong>1 dia útil</strong>; acompanhe o andamento no portal e pelo e-mail cadastrado.</div></section>
 
       <section class="chapter compact" id="postman"><div class="chapter-head"><span class="chapter-number">COLEÇÕES DE API</span><h2>Coleções Postman</h2><p>Importe a coleção e o ambiente no Postman para explorar as requisições de integração.</p></div><div class="download-card"><div><h3>Terminais de acesso MinMoe · PT-BR</h3><p>Coleção de requisições e ambiente Postman para a linha MinMoe. Após importar os dois arquivos, configure no ambiente o endereço, o usuário e a senha do seu dispositivo.</p></div><a class="download-button" href="downloads/Colecao-MinMoe-PT-BR.zip" download>Baixar coleção (.zip) ↓</a></div></section>
+      <section class="chapter" id="empresas"><div class="chapter-head"><span class="chapter-number">PARCEIROS DE INTEGRAÇÃO</span><h2>Empresas parceiras</h2><p>Consulte as empresas integradas com produtos Hikvision. Expanda um nome para ver os produtos homologados, quando disponíveis pela empresa parceira.</p></div>
+        <div class="company-directory" aria-labelledby="company-menu-title">
+          <h3 id="company-menu-title">Empresas parceiras <span class="company-count"></span></h3>
+          <label class="company-search-label" for="company-search">Buscar por nome fantasia ou razão social</label>
+          <input id="company-search" class="company-search" type="search" placeholder="Digite o nome da empresa" autocomplete="off">
+          <p class="company-sync-note">Lista sincronizada diariamente com os dados da planilha.</p>
+          <div class="company-list" aria-live="polite"></div>
+        </div>
+      </section>
       <footer><span class="visit-counter" hidden><img data-src="https://hits.sh/douglasqs.github.io/tpp-manual.svg?label=visitas&amp;color=667085&amp;labelColor=667085&amp;style=flat" alt="Contador de visitas ao manual" height="20" decoding="async" referrerpolicy="no-referrer"></span><a href="#inicio">Voltar ao início ↑</a></footer>
     </main>
   </div>

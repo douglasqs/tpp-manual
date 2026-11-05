@@ -13,6 +13,10 @@ O site não depende de Node, servidor ou chave de API. Para pré-visualizar loca
 
 O layout se adapta a computadores, tablets e celulares. O menu destaca o capítulo em leitura e, em telas menores, abre pelo botão **Índice**. É possível fechá-lo com **Esc**, pelo botão de fechar, pelo fundo ou ao escolher um capítulo. As animações respeitam a preferência de movimento reduzido do dispositivo. Sem JavaScript, os links do índice e todo o conteúdo continuam disponíveis.
 
+## Empresas parceiras
+
+A página **Empresas parceiras**, no índice, mostra apenas as linhas com integração **SIM**, permite buscar por nome fantasia ou razão social e expandir cada empresa para consultar os produtos homologados informados. O GitHub Actions executa `.github/workflows/update-companies.yml` diariamente às 08:15 UTC (05:15 no horário de Brasília), baixa o CSV e a exportação XLSX (para preservar hiperlinks de produtos) e atualiza `companies-data.js` quando encontra mudanças; o GitHub Pages publica a atualização após o commit. Também é possível executar o fluxo manualmente em **Actions → Atualizar empresas parceiras → Run workflow**. Na cópia consultada, 46 empresas estavam marcadas como SIM, e 23 tinham produtos preenchidos.
+
 ## Contador de visitas
 
 O rodapé exibe um contador discreto fornecido pelo [Hits](https://github.com/silentsoft/hits). O serviço mantém a contagem compartilhada de acessos desde a ativação do contador; ela não representa visitantes únicos nem recupera visitas anteriores.

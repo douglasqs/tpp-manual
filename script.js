@@ -12,9 +12,80 @@
   const main = document.querySelector('main');
   const header = document.querySelector('.topbar');
   const progress = document.querySelector('.progress-value');
+  const companyList = document.querySelector('.company-list');
+  const companySearch = document.querySelector('#company-search');
+  const companies = (window.integratedCompanies || []).filter(company => company.integration.trim().toLocaleUpperCase('pt-BR') === 'SIM');
   const mobile = window.matchMedia('(max-width: 960px)');
   let menuOpen = false;
   let scheduled = false;
+
+  function renderCompanies(query = '') {
+    const normalized = query.trim().toLocaleLowerCase('pt-BR');
+    const matching = companies.filter(company => `${company.name} ${company.legalName}`.toLocaleLowerCase('pt-BR').includes(normalized));
+    document.querySelector('.company-count').textContent = `(${matching.length})`;
+    companyList.replaceChildren();
+
+    if (!matching.length) {
+      const empty = document.createElement('p');
+      empty.className = 'company-empty';
+      empty.textContent = 'Nenhuma empresa encontrada.';
+      companyList.append(empty);
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    matching.forEach(company => {
+      const item = document.createElement('details');
+      item.className = 'company-item';
+      const summary = document.createElement('summary');
+      summary.textContent = company.name;
+      const content = document.createElement('div');
+      content.className = 'company-details';
+
+      if (company.legalName) {
+        const legalName = document.createElement('p');
+        legalName.innerHTML = '<strong>Razão social:</strong> ';
+        legalName.append(document.createTextNode(company.legalName));
+        content.append(legalName);
+      }
+      const status = document.createElement('p');
+      status.innerHTML = '<strong>Integração:</strong> ';
+      status.append(document.createTextNode(company.integration || 'Não informado'));
+      status.append(document.createTextNode(' · '));
+      status.append(document.createTextNode(`Portal TPP: ${company.portal || 'Não informado'}`));
+      content.append(status);
+
+      const productsTitle = document.createElement('p');
+      productsTitle.className = 'company-products-title';
+      productsTitle.textContent = company.products.length ? 'Produtos homologados' : 'Nenhum produto listado, confirmar diretamente com a empresa ou suporte técnico.';
+      content.append(productsTitle);
+      if (company.products.length) {
+        const products = document.createElement('ul');
+        company.products.forEach(product => {
+          const row = document.createElement('li');
+          const name = typeof product === 'string' ? product : product.name;
+          if (typeof product?.url === 'string' && /^https:\/\//i.test(product.url)) {
+            const link = document.createElement('a');
+            link.href = product.url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = name;
+            row.append(link);
+          } else {
+            row.textContent = name;
+          }
+          products.append(row);
+        });
+        content.append(products);
+      }
+      item.append(summary, content);
+      fragment.append(item);
+    });
+    companyList.append(fragment);
+  }
+
+  renderCompanies();
+  companySearch.addEventListener('input', () => renderCompanies(companySearch.value));
 
   function setMenu(open, restoreFocus = true) {
     menuOpen = open && mobile.matches;
@@ -87,8 +158,10 @@
       setMenu(false);
     }
     if (event.key === 'Tab') {
-      const first = close;
-      const last = links[links.length - 1];
+      const focusable = [...sidebar.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), summary')]
+        .filter(element => element.offsetParent !== null);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
       if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
         last.focus();

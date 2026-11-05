@@ -1,0 +1,35 @@
+name: Atualizar empresas parceiras
+
+on:
+  schedule:
+    - cron: "15 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-companies
+  cancel-in-progress: false
+
+jobs:
+  refresh-directory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Atualizar dados da planilha
+        run: python3 scripts/update_companies.py
+
+      - name: Publicar novos dados no repositório
+        run: |
+          if git diff --quiet -- companies-data.js; then
+            echo "A lista já está atualizada."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add companies-data.js
+          git commit -m "Atualiza empresas parceiras"
+          git push
