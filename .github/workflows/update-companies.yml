@@ -1,6 +1,8 @@
 name: Atualizar empresas parceiras
 
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: "15 8 * * *"
   workflow_dispatch:
@@ -19,6 +21,9 @@ jobs:
       - name: Baixar o repositório
         uses: actions/checkout@v4
 
+      - name: Testar leitura da planilha
+        run: python3 -B -m unittest discover -s scripts -p 'test_*.py' -v
+
       - name: Atualizar dados da planilha
         run: python3 scripts/update_companies.py
 
@@ -33,3 +38,28 @@ jobs:
           git add companies-data.js
           git commit -m "Atualiza empresas parceiras"
           git push
+
+      - name: Preparar arquivos do site
+        run: |
+          mkdir -p _site
+          cp index.html styles.css script.js companies-data.js _site/
+          cp -R assets downloads _site/
+
+      - name: Enviar arquivos para o GitHub Pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: refresh-directory
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar site atualizado
+        id: deployment
+        uses: actions/deploy-pages@v4

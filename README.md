@@ -5,8 +5,8 @@ Site estático em português para orientar parceiros de tecnologia no uso do por
 ## Publicar gratuitamente no GitHub Pages
 
 1. No GitHub, crie um repositório **público** chamado `tpp-manual`.
-2. Envie `index.html`, `styles.css`, `script.js` e as pastas `assets/` e `downloads/` para a raiz da branch `main` (não envie apenas o ZIP).
-3. Em **Settings → Pages**, escolha **Deploy from a branch**, branch `main`, pasta `/ (root)` e salve.
+2. Envie `index.html`, `styles.css`, `script.js`, `companies-data.js` e as pastas `assets/`, `downloads/`, `scripts/` e `.github/workflows/` para a raiz da branch `main` (não envie apenas o ZIP).
+3. Em **Settings → Pages → Build and deployment → Source**, escolha **GitHub Actions**. O fluxo `.github/workflows/update-companies.yml` publica o site após atualizar os dados.
 4. Após a publicação, abra `https://douglasqs.github.io/tpp-manual/`.
 
 O site não depende de Node, servidor ou chave de API. Para pré-visualizar localmente, abra `index.html` no navegador.
@@ -15,7 +15,11 @@ O layout se adapta a computadores, tablets e celulares. O menu destaca o capítu
 
 ## Empresas parceiras
 
-A página **Empresas parceiras**, no índice, mostra apenas as linhas com integração **SIM**, permite buscar por nome fantasia ou razão social e expandir cada empresa para consultar os produtos homologados informados. O GitHub Actions executa `.github/workflows/update-companies.yml` diariamente às 08:15 UTC (05:15 no horário de Brasília), baixa o CSV e a exportação XLSX (para preservar hiperlinks de produtos) e atualiza `companies-data.js` quando encontra mudanças; o GitHub Pages publica a atualização após o commit. Também é possível executar o fluxo manualmente em **Actions → Atualizar empresas parceiras → Run workflow**. Na cópia consultada, 46 empresas estavam marcadas como SIM, e 23 tinham produtos preenchidos.
+A página **Empresas parceiras**, no índice, mostra apenas as linhas com integração **SIM**, permite buscar por nome fantasia ou razão social e expandir cada empresa para consultar os produtos homologados informados. O GitHub Actions executa `.github/workflows/update-companies.yml` a cada envio para `main` e diariamente, com agendamento para 08:15 UTC (05:15 no horário de Brasília; o GitHub pode atrasar a execução). O fluxo baixa o CSV e a exportação XLSX (para preservar hiperlinks de produtos), testa a leitura, atualiza `companies-data.js` quando encontra mudanças e publica os arquivos diretamente no GitHub Pages. Também é possível executar o fluxo manualmente em **Actions → Atualizar empresas parceiras → Run workflow**. Na cópia consultada, 46 empresas estavam marcadas como SIM, e 23 tinham produtos preenchidos.
+
+A publicação requer **Settings → Pages → Source → GitHub Actions**. O envio automático de um commit com `GITHUB_TOKEN` não dispara a publicação por branch, por isso o próprio fluxo envia o artefato e executa a publicação. A leitura aceita as colunas `RAZÃO SOCIAL` e `RAZÃO SOCIAL corrigido`, com tolerância a espaços e maiúsculas/minúsculas. Se uma coluna obrigatória desaparecer ou não houver empresas com integração **SIM**, a execução falha sem sobrescrever a lista existente.
+
+Para validar a leitura localmente, execute `python -B -m unittest discover -s scripts -p 'test_*.py' -v`. Para baixar a planilha e regenerar a lista, execute `python -B scripts/update_companies.py`.
 
 ## Contador de visitas
 

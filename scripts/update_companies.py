@@ -44,6 +44,59 @@ def product_cell_links(xlsx_bytes):
     return links
 
 
+def parse_companies(content, product_links):
+    """Validate the sheet before replacing the published directory."""
+    reader = csv.DictReader(io.StringIO(content, newline=""))
+    headers = {" ".join(name.split()).casefold(): name for name in reader.fieldnames or []}
+    expected = {
+        "name": ("NOME FANTASIA",),
+        "legalName": ("RAZÃO SOCIAL", "RAZÃO SOCIAL corrigido"),
+        "integration": ("INTEGRAÇÃO",),
+        "portal": ("PORTAL TPP",),
+        "products": ("PRODUTOS",),
+    }
+    columns = {}
+    for field, aliases in expected.items():
+        for alias in aliases:
+            if alias.casefold() in headers:
+                columns[field] = headers[alias.casefold()]
+                break
+        else:
+            raise ValueError(
+                f"CSV missing required column {aliases[0]!r}; "
+                f"received headers: {reader.fieldnames!r}; keeping current data"
+            )
+
+    companies = []
+    for row_number, row in enumerate(reader, start=2):
+        if (row.get(columns["integration"]) or "").strip().upper() != "SIM":
+            continue
+        name = (row.get(columns["name"]) or "").strip()
+        if not name:
+            continue
+        product_url = product_links.get(row_number)
+        products = []
+        for item in (row.get(columns["products"]) or "").splitlines():
+            item = item.strip()
+            if item:
+                products.append({"name": item, **({"url": product_url} if product_url else {})})
+        companies.append(
+            {
+                "name": name,
+                "legalName": (row.get(columns["legalName"]) or "").strip(),
+                "integration": (row.get(columns["integration"]) or "").strip(),
+                "portal": (row.get(columns["portal"]) or "").strip(),
+                "products": products,
+            }
+        )
+
+    if not companies:
+        raise ValueError("CSV contained no companies marked with integration SIM; keeping current data")
+
+    companies.sort(key=lambda company: company["name"].casefold())
+    return companies
+
+
 def main():
     request = urllib.request.Request(
         CSV_URL,
@@ -54,38 +107,7 @@ def main():
     with urllib.request.urlopen(XLSX_URL, timeout=30) as response:
         product_links = product_cell_links(response.read())
 
-    reader = csv.DictReader(io.StringIO(content, newline=""))
-    required = {"NOME FANTASIA", "RAZÃO SOCIAL corrigido", "INTEGRAÇÃO", "PORTAL TPP", "PRODUTOS"}
-    if not reader.fieldnames or not required.issubset(reader.fieldnames):
-        raise ValueError("CSV headers did not match the expected company sheet columns")
-
-    companies = []
-    for row_number, row in enumerate(reader, start=2):
-        if (row.get("INTEGRAÇÃO") or "").strip().upper() != "SIM":
-            continue
-        name = (row.get("NOME FANTASIA") or "").strip()
-        if not name:
-            continue
-        product_url = product_links.get(row_number)
-        products = []
-        for item in (row.get("PRODUTOS") or "").splitlines():
-            item = item.strip()
-            if item:
-                products.append({"name": item, **({"url": product_url} if product_url else {})})
-        companies.append(
-            {
-                "name": name,
-                "legalName": (row.get("RAZÃO SOCIAL corrigido") or "").strip(),
-                "integration": (row.get("INTEGRAÇÃO") or "").strip(),
-                "portal": (row.get("PORTAL TPP") or "").strip(),
-                "products": products,
-            }
-        )
-
-    if not companies:
-        raise ValueError("CSV contained no companies marked with integration SIM; keeping current data")
-
-    companies.sort(key=lambda company: company["name"].casefold())
+    companies = parse_companies(content, product_links)
     serialized = json.dumps(companies, ensure_ascii=False, separators=(",", ":"))
     OUTPUT.write_text(f"window.integratedCompanies = {serialized};\n", encoding="utf-8")
     print(f"Updated {OUTPUT.name} with {len(companies)} companies marked SIM")
