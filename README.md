@@ -21,6 +21,8 @@ A publicação requer **Settings → Pages → Source → GitHub Actions**. O en
 
 Para validar a leitura localmente, execute `python -B -m unittest discover -s scripts -p 'test_*.py' -v`. Para baixar a planilha e regenerar a lista, execute `python -B scripts/update_companies.py`.
 
+A publicação usa `python -B scripts/build_site.py` para preparar `_site/`. As referências ao CSS, JavaScript e dados de empresas recebem uma versão calculada pelo conteúdo (`?v=...`). Quando os produtos mudam, o endereço do arquivo de dados também muda, evitando reutilizar a versão anterior do cache ao carregar o HTML atualizado. Arquivos sem alterações continuam aproveitando o cache. O HTML pode levar alguns minutos para se propagar pelo GitHub Pages; uma aba já aberta precisa ser recarregada para mostrar uma nova publicação.
+
 ## Contador de visitas
 
 O rodapé exibe um contador discreto fornecido pelo [Hits](https://github.com/silentsoft/hits). O serviço mantém a contagem compartilhada de acessos desde a ativação do contador; ela não representa visitantes únicos nem recupera visitas anteriores.
